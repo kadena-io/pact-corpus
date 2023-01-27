@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+for CHAIN in $(seq 0 19); do
+    DB=/Volumes/tank/ChainState/kadena/chainweb-node/mainnet01/0/sqlite/pact-v1-chain-${CHAIN}.sqlite
+
+    echo "Getting all modules for chain ${CHAIN}"
+    sqlite3 "$DB" '.mode json' '.once out.json' 'select * from [SYS:Modules]' \
+        > out.json
+
+    for txid in $(jq -r 'map(.txid) | @sh' < out.json); do
+        echo "Getting code for txid ${txid} in chain ${CHAIN}"
+
+        jq -r ".[] | select(.txid == ${txid}) | .rowdata" < out.json \
+            | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
+            | jq -r > ${txid}-${CHAIN}.pact
+    done
+
+    rm -f out.json
+done
+
+# (while (re-search-forward "^\\([0-9a-f]+\\)  \\(.+\\)$" nil t)
+#   (goto-char (match-beginning 0))
+#   (let ((cnt (save-excursion
+#                (goto-char (point-min))
+#                (count-matches (match-string 1)))))
+#     (insert (number-to-string cnt) ? )
+#     (forward-line)))
+
+# (while (re-search-forward "^\\([0-9]+\\) \\([0-9a-f]+\\)  \\(.+\\)$" nil t)
+#   (goto-char (match-end 0))
+#   (let ((cnt (string-to-number (match-string 1))))
+#     (delete-region (match-beginning 1) (match-beginning 3))
+#     (dotimes (i (1- cnt))
+#       (re-search-forward "^\\([0-9]+\\) \\([0-9a-f]+\\)  \\(.+\\)$" nil t)
+#       (delete-region (1- (match-beginning 1)) (match-end 2)))
+#     (forward-line)))
+
+# (while (not (eobp))
+#   (sort-regexp-fields nil "\\([0-9]+\\)-\\([0-9]+\\)\\.pact" "\\2" (line-beginning-position) (line-end-position))
+#   (forward-line))
