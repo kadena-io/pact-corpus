@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
 
 for CHAIN in $(seq 0 19); do
-    DB=/Volumes/tank/ChainState/kadena/chainweb-node/mainnet01/0/sqlite/pact-v1-chain-${CHAIN}.sqlite
+    DB=/Volumes/ext/ChainState/kadena/chainweb-node/mainnet01/0/sqlite/pact-v1-chain-${CHAIN}.sqlite
 
     echo "Getting all modules for chain ${CHAIN}"
     sqlite3 "$DB" '.mode json' '.once out.json' 'select * from [SYS:Modules]' \
         > out.json
 
     for txid in $(jq -r 'map(.txid) | @sh' < out.json); do
-        echo "Getting code for txid ${txid} in chain ${CHAIN}"
+        if [[ ! -f ${txid}-${CHAIN}.pact ]]; then
+            echo "Getting code for txid ${txid} in chain ${CHAIN}"
 
-        jq -r ".[] | select(.txid == ${txid}) | .rowdata" < out.json \
-            | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
-            | jq -r > ${txid}-${CHAIN}.pact
+            jq -r ".[] | select(.txid == ${txid}) | .rowdata" < out.json \
+                | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
+                | jq -r > ${txid}-${CHAIN}.pact
+        fi
     done
 
     rm -f out.json
