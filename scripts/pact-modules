@@ -10,6 +10,8 @@ for CHAIN in $(seq 0 19); do
         > out.json
 
     for txid in $(jq -r 'map(.txid) | @sh' < out.json); do
+        txid=$(printf "%010d" $txid)
+        CHAIN=$(printf "%02d" $CHAIN)
         if [[ ! -f ${txid}-${CHAIN}.pact ]]; then
             echo "Getting code for txid ${txid} in chain ${CHAIN}"
 
