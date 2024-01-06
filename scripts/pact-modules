@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DBROOT=/Volumes/ext/ChainState/kadena/chainweb-node
+DBROOT=$HOME/.local/share/chainweb-node
 
 for CHAIN in $(seq 0 19); do
     DB=${DBROOT}/mainnet01/0/sqlite/pact-v1-chain-${CHAIN}.sqlite
@@ -11,13 +11,13 @@ for CHAIN in $(seq 0 19); do
 
     for txid in $(jq -r 'map(.txid) | @sh' < out.json); do
         txid=$(printf "%010d" $txid)
-        CHAIN=$(printf "%02d" $CHAIN)
-        if [[ ! -f ${txid}-${CHAIN}.pact ]]; then
-            echo "Getting code for txid ${txid} in chain ${CHAIN}"
+        chainnum=$(printf "%02d" $CHAIN)
+        if [[ ! -f ${txid}-${chainnum}.pact ]]; then
+            echo "Getting code for txid ${txid} in chain ${chainnum}"
 
             jq -r ".[] | select(.txid == ${txid}) | .rowdata" < out.json \
                 | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
-                | jq -r > ${txid}-${CHAIN}.pact
+                | jq -r > ${txid}-${chainnum}.pact
         fi
     done
 
