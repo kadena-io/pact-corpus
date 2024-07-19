@@ -1,1 +1,0 @@
-../modules/kdx.priv-sale-2526136.pact

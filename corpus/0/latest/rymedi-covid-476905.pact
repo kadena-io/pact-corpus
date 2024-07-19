@@ -1,1 +1,0 @@
-../modules/rymedi-covid-476905.pact

@@ -1,1 +1,0 @@
-../modules/free.blockchain-chat-4767092.pact

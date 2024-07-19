@@ -1,1 +1,0 @@
-../modules/kaddex.kdx-3172576.pact

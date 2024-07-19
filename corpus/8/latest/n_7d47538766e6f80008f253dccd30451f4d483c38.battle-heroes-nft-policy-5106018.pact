@@ -1,1 +1,0 @@
-../modules/n_7d47538766e6f80008f253dccd30451f4d483c38.battle-heroes-nft-policy-5106018.pact

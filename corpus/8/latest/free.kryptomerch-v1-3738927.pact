@@ -1,1 +1,0 @@
-../modules/free.kryptomerch-v1-3738927.pact

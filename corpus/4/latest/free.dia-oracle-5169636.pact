@@ -1,1 +1,0 @@
-../modules/free.dia-oracle-5169636.pact

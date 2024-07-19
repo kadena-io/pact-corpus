@@ -1,1 +1,0 @@
-../modules/lago.fungible-burn-mint-12858845.pact

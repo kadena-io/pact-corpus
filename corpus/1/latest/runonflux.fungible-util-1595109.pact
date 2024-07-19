@@ -1,1 +1,0 @@
-../modules/runonflux.fungible-util-1595109.pact

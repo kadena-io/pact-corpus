@@ -1,1 +1,0 @@
-../modules/mok.staking-3306614.pact

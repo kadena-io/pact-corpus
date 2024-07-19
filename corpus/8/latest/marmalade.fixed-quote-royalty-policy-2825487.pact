@@ -1,1 +1,0 @@
-../modules/marmalade.fixed-quote-royalty-policy-2825487.pact

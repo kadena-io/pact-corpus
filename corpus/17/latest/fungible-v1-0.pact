@@ -1,1 +1,0 @@
-../modules/fungible-v1-0.pact

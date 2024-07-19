@@ -1,1 +1,0 @@
-../modules/free.wizequipment-interface-v1-6678179.pact

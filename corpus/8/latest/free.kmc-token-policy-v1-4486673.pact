@@ -1,1 +1,0 @@
-../modules/free.kmc-token-policy-v1-4486673.pact

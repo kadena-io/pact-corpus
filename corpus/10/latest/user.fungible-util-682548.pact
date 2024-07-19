@@ -1,1 +1,0 @@
-../modules/user.fungible-util-682548.pact

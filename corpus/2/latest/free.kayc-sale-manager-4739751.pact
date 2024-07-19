@@ -1,1 +1,0 @@
-../modules/free.kayc-sale-manager-4739751.pact

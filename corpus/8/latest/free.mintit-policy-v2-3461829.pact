@@ -1,1 +1,0 @@
-../modules/free.mintit-policy-v2-3461829.pact

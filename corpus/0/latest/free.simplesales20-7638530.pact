@@ -1,1 +1,0 @@
-../modules/free.simplesales20-7638530.pact

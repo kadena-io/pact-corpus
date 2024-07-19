@@ -1,1 +1,0 @@
-../modules/arkade.arkade-staking-9758251.pact

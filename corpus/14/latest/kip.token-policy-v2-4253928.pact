@@ -1,1 +1,0 @@
-../modules/kip.token-policy-v2-4253928.pact

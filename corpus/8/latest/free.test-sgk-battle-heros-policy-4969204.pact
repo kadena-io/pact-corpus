@@ -1,1 +1,0 @@
-../modules/free.test-sgk-battle-heros-policy-4969204.pact

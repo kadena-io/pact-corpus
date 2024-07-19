@@ -1,1 +1,0 @@
-../modules/free.wiza1-interface-v3-4409744.pact

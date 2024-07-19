@@ -1,1 +1,0 @@
-../modules/free.KapyCoin-4177865.pact

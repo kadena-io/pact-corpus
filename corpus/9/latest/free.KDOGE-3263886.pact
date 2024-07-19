@@ -1,1 +1,0 @@
-../modules/free.KDOGE-3263886.pact

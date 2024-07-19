@@ -1,1 +1,0 @@
-../modules/kip.account-protocols-v1-3268103.pact

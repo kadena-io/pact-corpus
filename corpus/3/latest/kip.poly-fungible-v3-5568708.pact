@@ -1,1 +1,0 @@
-../modules/kip.poly-fungible-v3-5568708.pact

@@ -1,1 +1,0 @@
-../modules/free.corona-token-15609712.pact

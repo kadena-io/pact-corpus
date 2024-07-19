@@ -1,1 +1,0 @@
-../modules/free.test-lottery-3409256.pact

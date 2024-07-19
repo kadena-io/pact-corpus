@@ -1,1 +1,0 @@
-../modules/kip.updatable-uri-policy-v1-5975514.pact

@@ -1,1 +1,0 @@
-../modules/fungible-xchain-v1-9959287.pact

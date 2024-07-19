@@ -1,1 +1,0 @@
-../modules/free.simplesales6-3408254.pact

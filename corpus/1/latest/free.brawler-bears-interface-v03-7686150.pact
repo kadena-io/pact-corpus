@@ -1,1 +1,0 @@
-../modules/free.brawler-bears-interface-v03-7686150.pact

@@ -1,1 +1,0 @@
-../modules/free.kdoge-stake-5677322.pact

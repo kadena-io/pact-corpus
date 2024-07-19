@@ -1,1 +1,0 @@
-../modules/free.mintit-presale-policy-3526242.pact

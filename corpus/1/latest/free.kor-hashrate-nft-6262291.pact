@@ -1,1 +1,0 @@
-../modules/free.kor-hashrate-nft-6262291.pact

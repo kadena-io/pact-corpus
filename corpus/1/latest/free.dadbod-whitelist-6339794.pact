@@ -1,1 +1,0 @@
-../modules/free.dadbod-whitelist-6339794.pact
