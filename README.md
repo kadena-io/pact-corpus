@@ -1,6 +1,6 @@
 # pact-corpus
 
-This repository contains all of the modules on Kadena's mainnet.
+This repository contains an archive of all of the modules on Kadena's mainnet.
 
 ## Output
 
@@ -25,3 +25,5 @@ lago.kwBTC-20992939.pact -> ../modules/lago.kwBTC-20992939.pact
 - Download a mainnet pact db.
 - Run `rm -r corpus`
 - Run `./scripts/pact-modules -i /path/to/mainnet/db -o corpus`.
+- Run `tar -czvf corpus.tar.gz --directory=corpus .`
+- Run `rm -r corpus`
