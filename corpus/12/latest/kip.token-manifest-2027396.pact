@@ -1,0 +1,1 @@
+../modules/kip.token-manifest-2027396.pact

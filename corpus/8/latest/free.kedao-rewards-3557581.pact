@@ -1,0 +1,1 @@
+../modules/free.kedao-rewards-3557581.pact

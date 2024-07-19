@@ -1,0 +1,1 @@
+../modules/free.brawler-bears-attacks-7686173.pact

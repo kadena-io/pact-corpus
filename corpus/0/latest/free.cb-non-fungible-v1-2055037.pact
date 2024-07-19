@@ -1,0 +1,1 @@
+../modules/free.cb-non-fungible-v1-2055037.pact

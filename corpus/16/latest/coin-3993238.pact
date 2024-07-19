@@ -1,0 +1,1 @@
+../modules/coin-3993238.pact

@@ -1,0 +1,1 @@
+../modules/user.kasino-contract-4199668.pact

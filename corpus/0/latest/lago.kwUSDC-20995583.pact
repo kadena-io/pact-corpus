@@ -1,0 +1,1 @@
+../modules/lago.kwUSDC-20995583.pact

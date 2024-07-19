@@ -1,25 +1,83 @@
 #!/usr/bin/env bash
 
-DBROOT=$HOME/.local/share/chainweb-node
+set -o errexit -o pipefail
 
-for CHAIN in $(seq 0 19); do
-    DB=${DBROOT}/mainnet01/0/sqlite/pact-v1-chain-${CHAIN}.sqlite
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
 
-    echo "Getting all modules for chain ${CHAIN}"
-    sqlite3 "$DB" '.mode json' '.once out.json' 'select * from [SYS:Modules]' \
-        > out.json
+getopt --test > /dev/null && true
+if [[ $? -ne 4 ]]; then
+    echo "I'm sorry, \`getopt --test\` failed in this environment."
+    exit 1
+fi
 
-    for txid in $(jq -r 'map(.txid) | @sh' < out.json); do
-        txid=$(printf "%010d" $txid)
-        chainnum=$(printf "%02d" $CHAIN)
-        if [[ ! -f ${txid}-${chainnum}.pact ]]; then
-            echo "Getting code for txid ${txid} in chain ${chainnum}"
+DB_PATH=-
+OUT_PATH=-
+CHAIN_COUNT=20
 
-            jq -r ".[] | select(.txid == ${txid}) | .rowdata" < out.json \
-                | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
-                | jq -r > ${txid}-${chainnum}.pact
+# Parse command-line options
+while getopts ":d:i:o:c:" opt; do
+    case $opt in
+        d)
+          set -x
+          ;;
+        i)
+          DB_PATH="$OPTARG"
+          ;;
+        o)
+          OUT_PATH="$OPTARG"
+          ;;
+        c)
+          CHAIN_COUNT="$OPTARG"
+          ;;
+        \?)
+          echo "Usage: $0 [-d db_path] [-o out_path] [-c chain_count]"
+          exit 3
+          ;;
+    esac
+done
+
+if [ "$DB_PATH" = "-" ] || [ "$OUT_PATH" = "-" ]; then
+  echo "$0: You must supply both -i and -o"
+  exit 4
+fi
+
+# Iterate over each chain number
+for (( num=0; num<CHAIN_COUNT; num++ )); do
+    DB_FILE="$DB_PATH/0/sqlite/pact-v1-chain-$num.sqlite"
+    OUTPUT_DIR="$OUT_PATH/$num/modules"
+    LATEST_DIR="$OUT_PATH/$num/latest"
+
+    # Ensure the output and latest directories exist
+    mkdir -p "$OUTPUT_DIR"
+    mkdir -p "$LATEST_DIR"
+
+    # Create an associative array to keep track of the highest txid for each rowkey
+    declare -A latest_txid
+    latest_txid=()
+
+    # Query to select all rows from the Modules table
+    QUERY="SELECT rowkey, txid, rowdata FROM [SYS:Modules] ORDER BY rowkey, txid;"
+
+    # Execute the query and process each row
+    while IFS='|' read -r rowkey txid rowdata; do
+        # Write the rowdata to the corresponding file
+        echo "$rowdata" \
+          | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
+          | jq -r > "$OUTPUT_DIR/$rowkey-$txid.pact"
+
+        # Update the latest_txid associative array
+        if [[ -z "${latest_txid[$rowkey]}" || "$txid" -gt "${latest_txid[$rowkey]}" ]]; then
+            latest_txid[$rowkey]=$txid
         fi
-    done
+    done < <(sqlite3 -readonly -batch -noheader -separator '|' "$DB_FILE" "$QUERY")
 
-    rm -f out.json
+    # Create symlinks in the latest directory for the highest txid of each rowkey
+    for rowkey in "${!latest_txid[@]}"; do
+        txid=${latest_txid[$rowkey]}
+        #TARGET_FILE="$OUTPUT_DIR/$rowkey-$txid.pact"
+        SYMLINK_PATH="$LATEST_DIR/$rowkey-$txid.pact"
+
+        ln -sf "../modules/$rowkey-$txid.pact" "$SYMLINK_PATH"
+    done
 done

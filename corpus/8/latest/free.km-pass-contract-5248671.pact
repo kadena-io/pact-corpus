@@ -1,0 +1,1 @@
+../modules/free.km-pass-contract-5248671.pact

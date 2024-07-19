@@ -1,0 +1,1 @@
+../modules/kdlaunch.staking-6495703.pact

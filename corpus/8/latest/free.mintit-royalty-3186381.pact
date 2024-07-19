@@ -1,0 +1,1 @@
+../modules/free.mintit-royalty-3186381.pact

@@ -1,0 +1,1 @@
+../modules/free.wrapped-token-adapt-v1-66369545.pact

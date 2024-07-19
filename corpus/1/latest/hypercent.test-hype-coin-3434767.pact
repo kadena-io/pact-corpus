@@ -1,0 +1,1 @@
+../modules/hypercent.test-hype-coin-3434767.pact

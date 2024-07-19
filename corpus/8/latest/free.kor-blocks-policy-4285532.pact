@@ -1,0 +1,1 @@
+../modules/free.kor-blocks-policy-4285532.pact

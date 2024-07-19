@@ -1,0 +1,1 @@
+../modules/n_f1c962776331c4773136dc1587a8355c9957eae1.isoko-royalty-policy-v1-6260336.pact
