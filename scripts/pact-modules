@@ -11,15 +11,37 @@ if [[ $? -ne 4 ]]; then
     exit 1
 fi
 
-DB_PATH=-
-OUT_PATH=-
-CHAIN_COUNT=20
+export DB_PATH=-
+export OUT_PATH=-
+export CHAIN_COUNT=20
+export PARALLEL_JOBS=1
+
+usage() {
+  echo "Usage: $0 -i db_path -o out_path [-d debug] [-c chain_count] [-p parallel_jobs]"
+
+  printf "\n  pact-modules - %s\n\n" "generate pact corpus"
+
+  printf "Available options:\n"
+
+  printf "%s\n" \
+    "    -i db_path                         Path to database (without the 0/sqlite)." \
+    "    -o out_path                        Directory to create and store the corpus in." \
+    "    [-c chain_count (default: 20)]     Number of chains to produce the corpus for. Defaults to lower bound of 0, inclusive." \
+    "    [-p parallel_jobs (default: 1)]    Number of chains to process in parallel." \
+    "    [-d debug (default: not enabled)]  Whether or not to enable debug logging."
+
+
+}
 
 # Parse command-line options
-while getopts ":d:i:o:c:" opt; do
+while getopts ":d:h:i:o:c:p:" opt; do
     case $opt in
         d)
           set -x
+          ;;
+        h)
+          usage
+          exit 3
           ;;
         i)
           DB_PATH="$OPTARG"
@@ -30,54 +52,58 @@ while getopts ":d:i:o:c:" opt; do
         c)
           CHAIN_COUNT="$OPTARG"
           ;;
+        p)
+          PARALLEL_JOBS="$OPTARG"
+          ;;
         \?)
-          echo "Usage: $0 [-d db_path] [-o out_path] [-c chain_count]"
+          usage
           exit 3
           ;;
     esac
 done
 
 if [ "$DB_PATH" = "-" ] || [ "$OUT_PATH" = "-" ]; then
-  echo "$0: You must supply both -i and -o"
+  usage
+  printf "\nError: %s\n\n" "$0: You must supply both -i db_path and -o out_path"
   exit 4
 fi
 
-# Iterate over each chain number
-for (( num=0; num<CHAIN_COUNT; num++ )); do
-    DB_FILE="$DB_PATH/0/sqlite/pact-v1-chain-$num.sqlite"
-    OUTPUT_DIR="$OUT_PATH/$num/modules"
-    LATEST_DIR="$OUT_PATH/$num/latest"
+process_chain() {
+  local chain_id=$1
+  local db_file="$DB_PATH/0/sqlite/pact-v1-chain-$chain_id.sqlite"
+  local output_dir="$OUT_PATH/$chain_id/modules"
+  local latest_dir="$OUT_PATH/$chain_id/latest"
 
-    # Ensure the output and latest directories exist
-    mkdir -p "$OUTPUT_DIR"
-    mkdir -p "$LATEST_DIR"
+  mkdir -p "$output_dir"
+  mkdir -p "$latest_dir"
 
-    # Create an associative array to keep track of the highest txid for each rowkey
-    declare -A latest_txid
-    latest_txid=()
+  # Create an associative array to keep track of the highest txid for each rowkey
+  declare -A latest_txid
+  latest_txid=()
 
-    # Query to select all rows from the Modules table
-    QUERY="SELECT rowkey, txid, rowdata FROM [SYS:Modules] ORDER BY rowkey, txid;"
+  local query="SELECT rowkey, txid, rowdata FROM [SYS:Modules] ORDER BY rowkey, txid LIMIT 1;"
 
-    # Execute the query and process each row
-    while IFS='|' read -r rowkey txid rowdata; do
-        # Write the rowdata to the corresponding file
-        echo "$rowdata" \
-          | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
-          | jq -r > "$OUTPUT_DIR/$rowkey-$txid.pact"
+  # Execute the query and process each row
+  while IFS='|' read -r rowkey txid rowdata; do
+    # Write the rowdata to the corresponding file
+    echo "$rowdata" \
+      | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
+      | jq -r > "$output_dir/$rowkey-$txid.pact"
 
-        # Update the latest_txid associative array
-        if [[ -z "${latest_txid[$rowkey]}" || "$txid" -gt "${latest_txid[$rowkey]}" ]]; then
-            latest_txid[$rowkey]=$txid
-        fi
-    done < <(sqlite3 -readonly -batch -noheader -separator '|' "$DB_FILE" "$QUERY")
+    # Update the latest_txid associative array
+    if [[ -z "${latest_txid[$rowkey]}" || "$txid" -gt "${latest_txid[$rowkey]}" ]]; then
+      latest_txid[$rowkey]=$txid
+    fi
+  done < <(sqlite3 -readonly -batch -noheader -separator '|' "$db_file" "$query")
 
-    # Create symlinks in the latest directory for the highest txid of each rowkey
-    for rowkey in "${!latest_txid[@]}"; do
-        txid=${latest_txid[$rowkey]}
-        #TARGET_FILE="$OUTPUT_DIR/$rowkey-$txid.pact"
-        SYMLINK_PATH="$LATEST_DIR/$rowkey-$txid.pact"
+  # Create symlinks in the latest directory for the highest txid of each rowkey
+  for rowkey in "${!latest_txid[@]}"; do
+    txid=${latest_txid[$rowkey]}
+    local symlink_path="$latest_dir/$rowkey-$txid.pact"
+    ln -sf "../modules/$rowkey-$txid.pact" "$symlink_path"
+  done
+}
 
-        ln -sf "../modules/$rowkey-$txid.pact" "$SYMLINK_PATH"
-    done
-done
+export -f process_chain
+
+seq 0 $((CHAIN_COUNT - 1)) | parallel -j "$PARALLEL_JOBS" process_chain
