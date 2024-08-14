@@ -1,25 +1,109 @@
 #!/usr/bin/env bash
 
-DBROOT=$HOME/.local/share/chainweb-node
+set -o errexit -o pipefail
 
-for CHAIN in $(seq 0 19); do
-    DB=${DBROOT}/mainnet01/0/sqlite/pact-v1-chain-${CHAIN}.sqlite
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
 
-    echo "Getting all modules for chain ${CHAIN}"
-    sqlite3 "$DB" '.mode json' '.once out.json' 'select * from [SYS:Modules]' \
-        > out.json
+getopt --test > /dev/null && true
+if [[ $? -ne 4 ]]; then
+    echo "I'm sorry, \`getopt --test\` failed in this environment."
+    exit 1
+fi
 
-    for txid in $(jq -r 'map(.txid) | @sh' < out.json); do
-        txid=$(printf "%010d" $txid)
-        chainnum=$(printf "%02d" $CHAIN)
-        if [[ ! -f ${txid}-${chainnum}.pact ]]; then
-            echo "Getting code for txid ${txid} in chain ${chainnum}"
+export DB_PATH=-
+export OUT_PATH=-
+export CHAIN_COUNT=20
+export PARALLEL_JOBS=1
 
-            jq -r ".[] | select(.txid == ${txid}) | .rowdata" < out.json \
-                | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
-                | jq -r > ${txid}-${chainnum}.pact
-        fi
-    done
+usage() {
+  echo "Usage: $0 -i db_path -o out_path [-d debug] [-c chain_count] [-p parallel_jobs]"
 
-    rm -f out.json
+  printf "\n  pact-modules - %s\n\n" "generate pact corpus"
+
+  printf "Available options:\n"
+
+  printf "%s\n" \
+    "    -i db_path                         Path to database (without the 0/sqlite)." \
+    "    -o out_path                        Directory to create and store the corpus in." \
+    "    [-c chain_count (default: 20)]     Number of chains to produce the corpus for. Defaults to lower bound of 0, inclusive." \
+    "    [-p parallel_jobs (default: 1)]    Number of chains to process in parallel." \
+    "    [-d debug (default: not enabled)]  Whether or not to enable debug logging."
+
+
+}
+
+# Parse command-line options
+while getopts ":d:h:i:o:c:p:" opt; do
+    case $opt in
+        d)
+          set -x
+          ;;
+        h)
+          usage
+          exit 3
+          ;;
+        i)
+          DB_PATH="$OPTARG"
+          ;;
+        o)
+          OUT_PATH="$OPTARG"
+          ;;
+        c)
+          CHAIN_COUNT="$OPTARG"
+          ;;
+        p)
+          PARALLEL_JOBS="$OPTARG"
+          ;;
+        \?)
+          usage
+          exit 3
+          ;;
+    esac
 done
+
+if [ "$DB_PATH" = "-" ] || [ "$OUT_PATH" = "-" ]; then
+  usage
+  printf "\nError: %s\n\n" "$0: You must supply both -i db_path and -o out_path"
+  exit 4
+fi
+
+process_chain() {
+  local chain_id=$1
+  local db_file="$DB_PATH/0/sqlite/pact-v1-chain-$chain_id.sqlite"
+  local output_dir="$OUT_PATH/$chain_id/modules"
+  local latest_dir="$OUT_PATH/$chain_id/latest"
+
+  mkdir -p "$output_dir"
+  mkdir -p "$latest_dir"
+
+  # Create an associative array to keep track of the highest txid for each rowkey
+  declare -A latest_txid
+  latest_txid=()
+
+  local query="SELECT rowkey, txid, rowdata FROM [SYS:Modules] ORDER BY rowkey, txid LIMIT 1;"
+
+  # Execute the query and process each row
+  while IFS='|' read -r rowkey txid rowdata; do
+    # Write the rowdata to the corresponding file
+    echo "$rowdata" \
+      | jq -nc --stream 'inputs | select(length==2) | select([.[0][0,1]] == ["module", "code"]) | .[1]' \
+      | jq -r > "$output_dir/$rowkey-$txid.pact"
+
+    # Update the latest_txid associative array
+    if [[ -z "${latest_txid[$rowkey]}" || "$txid" -gt "${latest_txid[$rowkey]}" ]]; then
+      latest_txid[$rowkey]=$txid
+    fi
+  done < <(sqlite3 -readonly -batch -noheader -separator '|' "$db_file" "$query")
+
+  # Create symlinks in the latest directory for the highest txid of each rowkey
+  for rowkey in "${!latest_txid[@]}"; do
+    txid=${latest_txid[$rowkey]}
+    local symlink_path="$latest_dir/$rowkey-$txid.pact"
+    ln -sf "../modules/$rowkey-$txid.pact" "$symlink_path"
+  done
+}
+
+export -f process_chain
+
+seq 0 $((CHAIN_COUNT - 1)) | parallel -j "$PARALLEL_JOBS" process_chain
