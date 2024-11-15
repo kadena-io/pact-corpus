@@ -1,0 +1,1 @@
+../modules/free.kitty-kads-gen-0-image-ledger-5926206.pact

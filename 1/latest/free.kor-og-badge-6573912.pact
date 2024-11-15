@@ -1,0 +1,1 @@
+../modules/free.kor-og-badge-6573912.pact

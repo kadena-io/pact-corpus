@@ -1,0 +1,1 @@
+../modules/free.gallinas-poly-fungible-v1-3245747.pact

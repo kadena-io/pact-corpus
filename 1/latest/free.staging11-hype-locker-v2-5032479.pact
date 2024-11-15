@@ -1,0 +1,1 @@
+../modules/free.staging11-hype-locker-v2-5032479.pact

@@ -1,0 +1,1 @@
+../modules/free.kryptomerch-contract-5248700.pact

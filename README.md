@@ -23,7 +23,6 @@ lago.kwBTC-20992939.pact -> ../modules/lago.kwBTC-20992939.pact
 ## Usage
 
 - Download a mainnet pact db.
-- Run `rm -r corpus`
-- Run `./scripts/pact-modules -i /path/to/mainnet/db -o corpus`.
-- Run `tar -czvf corpus-$YEAR-$MM-$DD.tar.gz --directory=corpus .`
-- Run `rm -r corpus`
+- Run `mkdir /tmp/corpus`
+- Run `./scripts/pact-modules -i /path/to/mainnet/db -o /tmp/corpus`.
+- Run `rsync -av --delete /tmp/corpus/* .`.

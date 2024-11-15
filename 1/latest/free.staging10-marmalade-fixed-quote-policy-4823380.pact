@@ -1,0 +1,1 @@
+../modules/free.staging10-marmalade-fixed-quote-policy-4823380.pact

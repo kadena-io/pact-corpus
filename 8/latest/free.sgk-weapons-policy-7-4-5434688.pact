@@ -1,0 +1,1 @@
+../modules/free.sgk-weapons-policy-7-4-5434688.pact

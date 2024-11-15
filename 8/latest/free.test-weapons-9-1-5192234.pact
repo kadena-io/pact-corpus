@@ -1,0 +1,1 @@
+../modules/free.test-weapons-9-1-5192234.pact

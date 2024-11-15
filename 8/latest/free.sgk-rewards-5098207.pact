@@ -1,0 +1,1 @@
+../modules/free.sgk-rewards-5098207.pact

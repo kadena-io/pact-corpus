@@ -1,0 +1,1 @@
+../modules/free.wizarena-interface-v2-6572776.pact

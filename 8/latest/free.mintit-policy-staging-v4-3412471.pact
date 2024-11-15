@@ -1,0 +1,1 @@
+../modules/free.mintit-policy-staging-v4-3412471.pact

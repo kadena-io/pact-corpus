@@ -1,0 +1,1 @@
+../modules/free.kadena-mining-club1-5245077.pact

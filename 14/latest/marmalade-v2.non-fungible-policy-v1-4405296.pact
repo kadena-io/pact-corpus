@@ -1,0 +1,1 @@
+../modules/marmalade-v2.non-fungible-policy-v1-4405296.pact

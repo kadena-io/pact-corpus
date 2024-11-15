@@ -1,0 +1,1 @@
+../modules/free.weapons-upgrade-orchestrator-5479400.pact
