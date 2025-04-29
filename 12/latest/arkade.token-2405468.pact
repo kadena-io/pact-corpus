@@ -1,0 +1,1 @@
+../modules/arkade.token-2405468.pact
