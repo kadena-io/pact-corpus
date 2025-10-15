@@ -1,1 +1,0 @@
-../modules/free.hype-coin-3403425.pact

@@ -1,1 +1,0 @@
-../modules/free.kishu-ken-2940004.pact

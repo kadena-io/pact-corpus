@@ -1,1 +1,0 @@
-../modules/free.brawler-bears-9009384.pact

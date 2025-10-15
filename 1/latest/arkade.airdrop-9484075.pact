@@ -1,1 +1,0 @@
-../modules/arkade.airdrop-9484075.pact

@@ -1,1 +1,0 @@
-../modules/free.kapepe-coin-7469807.pact

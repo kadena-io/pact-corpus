@@ -1,1 +1,0 @@
-../modules/free.kryptomerch-fungible-3738945.pact

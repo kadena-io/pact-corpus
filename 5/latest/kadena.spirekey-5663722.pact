@@ -1,0 +1,1 @@
+../modules/kadena.spirekey-5663722.pact

@@ -1,0 +1,1 @@
+../modules/marmalade-v2.royalty-policy-v1-5310762.pact

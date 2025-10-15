@@ -1,1 +1,0 @@
-../modules/kswap.fungible-util-1428834.pact

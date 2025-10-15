@@ -1,0 +1,1 @@
+../modules/free.finux-registry-5798770.pact

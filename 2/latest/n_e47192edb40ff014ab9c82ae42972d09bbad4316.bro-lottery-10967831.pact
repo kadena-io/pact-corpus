@@ -1,0 +1,1 @@
+../modules/n_e47192edb40ff014ab9c82ae42972d09bbad4316.bro-lottery-10967831.pact

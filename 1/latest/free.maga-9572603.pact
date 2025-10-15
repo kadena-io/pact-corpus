@@ -1,1 +1,0 @@
-../modules/free.maga-9572603.pact

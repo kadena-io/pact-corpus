@@ -1,1 +1,0 @@
-../modules/free.monster-dollar-6048055.pact

@@ -1,0 +1,1 @@
+../modules/marmalade-v2.non-updatable-uri-policy-v1-5310755.pact

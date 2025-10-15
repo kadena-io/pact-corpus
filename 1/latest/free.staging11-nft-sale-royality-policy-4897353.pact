@@ -1,1 +1,0 @@
-../modules/free.staging11-nft-sale-royality-policy-4897353.pact

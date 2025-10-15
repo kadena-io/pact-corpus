@@ -1,1 +1,0 @@
-../modules/free.dogecoin-4897920.pact

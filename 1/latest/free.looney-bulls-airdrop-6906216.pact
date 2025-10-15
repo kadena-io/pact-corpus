@@ -1,1 +1,0 @@
-../modules/free.looney-bulls-airdrop-6906216.pact

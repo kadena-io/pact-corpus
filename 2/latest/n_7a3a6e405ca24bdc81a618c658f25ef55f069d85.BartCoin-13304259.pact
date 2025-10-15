@@ -1,0 +1,1 @@
+../modules/n_7a3a6e405ca24bdc81a618c658f25ef55f069d85.BartCoin-13304259.pact
