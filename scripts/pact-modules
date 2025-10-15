@@ -81,7 +81,7 @@ process_chain() {
   declare -A latest_txid
   latest_txid=()
 
-  local query="SELECT rowkey, txid, rowdata FROM [SYS:Modules] ORDER BY rowkey, txid LIMIT 1;"
+  local query="SELECT rowkey, txid, rowdata FROM [SYS:Modules] ORDER BY rowkey, txid;"
 
   # Execute the query and process each row
   while IFS='|' read -r rowkey txid rowdata; do
